@@ -1,0 +1,15 @@
+{
+  "perfil": { "usuario": "creadora.demo", "seguidores": 48200, "seguidos": 300, "likes_totales": 900000, "videos": 120 },
+  "ultimos_videos": [
+    { "url": "https://www.tiktok.com/@creadora.demo/video/1001", "fecha": "2026-11-12 18:30", "vistas": 11200, "likes": 480, "comentarios": 35, "compartidos": 12,
+      "primeros_comentarios": [{"texto": "Me encantó la receta, la voy a probar este fin"}, {"texto": "🔥🔥"}, {"texto": "qué rico"}] },
+    { "url": "https://www.tiktok.com/@creadora.demo/video/1002", "fecha": "2026-11-09 10:05", "vistas": 9800, "likes": 390, "comentarios": 28, "compartidos": 9,
+      "primeros_comentarios": [{"texto": "¿Dónde queda el local? Quiero ir el sábado"}, {"texto": "wow"}] },
+    { "url": "https://www.tiktok.com/@creadora.demo/video/1003", "fecha": "2026-11-06 20:15", "vistas": 15100, "likes": 620, "comentarios": 41, "compartidos": 20,
+      "primeros_comentarios": [{"texto": "Excelente servicio, fui la semana pasada y todo muy bueno"}, {"texto": "❤️"}, {"texto": "jajaja"}] },
+    { "url": "https://www.tiktok.com/@creadora.demo/video/1004", "fecha": "2026-11-03 12:40", "vistas": 8700, "likes": 310, "comentarios": 19, "compartidos": 6,
+      "primeros_comentarios": [{"texto": "Gracias por compartir tantos consejos útiles para emprender"}, {"texto": "👏"}] },
+    { "url": "https://www.tiktok.com/@creadora.demo/video/1005", "fecha": "2026-10-31 17:00", "vistas": 10300, "likes": 420, "comentarios": 30, "compartidos": 11,
+      "primeros_comentarios": [{"texto": "Primera vez que veo este lugar, se ve increíble"}, {"texto": "ok"}] }
+  ]
+}
