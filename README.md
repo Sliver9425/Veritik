@@ -169,7 +169,7 @@ Sigue estos pasos en orden. No necesitas cuentas ni claves.
 ### 2️⃣ Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/veritik.git
+git clone https://github.com/Sliver9425/Veritik.git
 cd veritik
 ```
 
