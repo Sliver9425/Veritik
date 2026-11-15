@@ -10,3 +10,5 @@ export * from './use-cases/AnalyzeProfileUseCase';
 export * from './use-cases/GetSearchHistoryUseCase';
 export * from './use-cases/GetAnalysisDetailUseCase';
 export * from './use-cases/CheckFreeQuotaUseCase';
+export * from './use-cases/CompareAnalysesUseCase';
+export * from './use-cases/OnboardingUseCases';

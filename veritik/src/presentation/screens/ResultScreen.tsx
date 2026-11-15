@@ -74,7 +74,7 @@ export function ResultScreen({ navigation, route }: RootScreenProps<'Result'>) {
 
       <Button label="Ver detalle de señales" onPress={() => navigation.navigate('Detail', { analysisId })} />
       <View style={styles.row}>
-        <Button label="Comparar" variant="secondary" small style={styles.flex} onPress={() => navigation.navigate('Tabs', { screen: 'Compare' })} />
+        <Button label="Comparar" variant="secondary" small style={styles.flex} onPress={() => navigation.navigate('Tabs', { screen: 'Compare', params: { firstId: analysisId } })} />
         <Button label="Compartir" variant="secondary" small style={styles.flex} onPress={() => void share()} />
       </View>
     </Screen>

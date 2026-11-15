@@ -17,3 +17,8 @@ export class QuotaExceededError extends ApplicationError {
 export class AnalysisNotFoundError extends ApplicationError {
   readonly code = 'ANALYSIS_NOT_FOUND';
 }
+
+/** Se pidió una comparación que no tiene sentido (por ejemplo, un análisis consigo mismo). */
+export class InvalidComparisonError extends ApplicationError {
+  readonly code = 'INVALID_COMPARISON';
+}

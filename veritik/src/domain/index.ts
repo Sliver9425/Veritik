@@ -11,3 +11,5 @@ export * from './entities/AnalysisResult';
 export * from './repositories/ProfileRepository';
 export * from './repositories/AnalysisHistoryRepository';
 export * from './repositories/UsageQuotaRepository';
+export * from './services/AnalysisComparison';
+export * from './repositories/OnboardingRepository';

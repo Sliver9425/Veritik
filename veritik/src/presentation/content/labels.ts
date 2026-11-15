@@ -25,6 +25,7 @@ const ERROR_TEXT: Record<string, string> = {
   PROFILE_UNAVAILABLE: 'No pudimos consultar la cuenta ahora (bloqueo o sin conexión). Intenta más tarde.',
   INSUFFICIENT_DATA: 'No hay datos suficientes para calcular un puntaje.',
   ANALYSIS_NOT_FOUND: 'No encontramos ese análisis.',
+  INVALID_COMPARISON: 'Elige dos análisis distintos para compararlos.',
 };
 
 export function messageForCode(code: string): string {

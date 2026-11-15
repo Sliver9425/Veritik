@@ -12,3 +12,8 @@ export function compactNumber(value: number): string {
   if (value >= 1_000) return `${decimal(value / 1_000, 1)} mil`;
   return String(value);
 }
+
+/** "15/11" */
+export function shortDate(date: Date): string {
+  return `${date.getDate()}/${date.getMonth() + 1}`;
+}

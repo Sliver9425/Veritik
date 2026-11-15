@@ -3,11 +3,12 @@ import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
 import { Screen } from '../components/atoms/Screen';
 import { container } from '../composition';
+import type { TabScreenProps } from '../navigation/types';
 import { useSessionStore } from '../store/useSessionStore';
 import { theme } from '../theme';
 
 /** Perfil y ajustes. Por ahora incluye herramientas de PRUEBA (plan y reinicio de datos). */
-export function ProfileScreen() {
+export function ProfileScreen({ navigation }: TabScreenProps<'Profile'>) {
   const isPremium = useSessionStore((s) => s.isPremium);
   const togglePremium = useSessionStore((s) => s.togglePremium);
 
@@ -27,6 +28,11 @@ export function ProfileScreen() {
           Origen de los perfiles: {container.dataSource === 'mock' ? 'ejemplos (sin backend)' : 'servidor de análisis'}.
         </Text>
         <Button label="Reiniciar historial y contador" variant="secondary" small onPress={() => void container.resetLocalData()} />
+      </Card>
+
+      <Card>
+        <Text style={styles.heading}>Bienvenida</Text>
+        <Button label="Ver la introducción otra vez" variant="secondary" small onPress={() => navigation.navigate('Onboarding')} />
       </Card>
 
       <Text style={styles.note}>Veritik analiza solo señales públicas y entrega estimaciones, no acusaciones.</Text>

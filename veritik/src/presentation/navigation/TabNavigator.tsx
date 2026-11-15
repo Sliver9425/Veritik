@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { theme } from '../theme';
+import { CompareScreen } from '../screens/CompareScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
 import { HomeScreen } from '../screens/HomeScreen';
-import { PlaceholderScreen } from '../screens/PlaceholderScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import type { TabParamList } from './types';
 
@@ -15,15 +15,6 @@ const ICONS: Record<keyof TabParamList, { active: string; inactive: string }> = 
   History: { active: 'time', inactive: 'time-outline' },
   Profile: { active: 'person', inactive: 'person-outline' },
 };
-
-function CompareScreen() {
-  return (
-    <PlaceholderScreen
-      title="Comparar"
-      message="Aquí podrás comparar dos cuentas lado a lado. Esta pantalla se construirá en un paso posterior."
-    />
-  );
-}
 
 export function TabNavigator() {
   return (
