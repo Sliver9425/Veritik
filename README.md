@@ -10,6 +10,20 @@
 ![Modelo](https://img.shields.io/badge/Modelo-Freemium-2EE6A6)
 
 ---
+## 👥 Integrantes del equipo
+
+
+| Integrante 
+|---|
+| Erick Bonilla |
+| Diego Lema |
+| Damián Quezada  |
+| Carolina Vasco| 
+
+**Universidad Central del Ecuador**
+
+**Periodo académico:** 2026-2027
+
 
 ## 📖 Descripción
 
