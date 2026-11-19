@@ -40,7 +40,7 @@ La persona escribe un `@usuario` y la app calcula un **puntaje de autenticidad d
 | 🔍 **Análisis de cuentas** | Puntaje de 0 a 100 con nivel alto, medio o bajo. |
 | 📊 **Detalle de señales** | Seis señales con su valor, su estado (Bien, Atención, Riesgo) y una hoja explicativa de "¿Cómo se calcula?". |
 | ⚖️ **Comparador** | Dos análisis lado a lado, también útil para ver la evolución de una misma cuenta. |
-| 🕘 **Historial** | Los últimos 50 análisis guardados en el dispositivo. |
+| 🕘 **Recientes e Historial** | **Recientes**, en Inicio, muestra hasta los 3 últimos análisis. La pestaña **Historial** permite consultar hasta los 50 análisis guardados más recientes. Al guardar un cuarto análisis, el primero sale de Recientes y sigue disponible en Historial. |
 | 🎯 **Medidor animado** | Medidor circular y bottom sheet animados (respetan "reducir movimiento"). |
 | 👋 **Onboarding** | Introducción de 3 pasos, solo la primera vez. |
 | 💎 **Freemium** | 3 análisis gratis al mes; el plan premium se simula con un interruptor de pruebas en la pestaña Perfil. |
