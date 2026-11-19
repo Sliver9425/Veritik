@@ -1,4 +1,6 @@
 import { HttpProfileRepository } from '../api/HttpProfileRepository';
+import { FIXTURES } from '../mocks/fixtures';
+import { FixtureProfileRepository } from '../mocks/FixtureProfileRepository';
 import { MockProfileRepository } from '../mocks/MockProfileRepository';
 import { asyncStorageAdapter } from '../persistence/AsyncStorageAdapter';
 import { SystemClock } from '../system/SystemClock';
@@ -7,7 +9,7 @@ import type { Container } from './container';
 
 /**
  * Configuración real de la app. Si existe EXPO_PUBLIC_API_URL (archivo .env en la raíz del proyecto)
- * se usa el backend; si no, se usan los perfiles de ejemplo. Tras cambiar el .env: `npx expo start -c`.
+ * se usa el backend; si no, se usan los datos de ejemplo (fixtures + generador). Tras cambiar el .env: `npx expo start -c`.
  */
 export function createAppContainer(): Container {
   const clock = new SystemClock();
@@ -22,7 +24,8 @@ export function createAppContainer(): Container {
     });
   }
   return createContainer({
-    profiles: new MockProfileRepository(clock),
+    // Cuentas con datos reales guardados (fixtures) y, para cualquier otro usuario, perfiles de ejemplo generados.
+    profiles: new FixtureProfileRepository(clock, FIXTURES, new MockProfileRepository(clock)),
     storage: asyncStorageAdapter,
     clock,
     dataSource: 'mock',
