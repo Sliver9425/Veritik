@@ -496,6 +496,6 @@ const styles = StyleSheet.create({
   chevron: {
     fontSize: 20,
     color: theme.colors.textSecondary,
-    opacity: 0.6,
+    opacity: 0.6, 
   },
 });
