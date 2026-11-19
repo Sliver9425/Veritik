@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import type { ComponentProps } from 'react';
 import { Platform } from 'react-native';
 import { theme } from '../theme';
 import { CompareScreen } from '../screens/CompareScreen';
@@ -10,7 +11,9 @@ import type { TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const ICONS: Record<keyof TabParamList, { active: string; inactive: string }> = {
+type IoniconName = ComponentProps<typeof Ionicons>['name'];
+
+const ICONS: Record<keyof TabParamList, { active: IoniconName; inactive: IoniconName }> = {
   Home: { active: 'home', inactive: 'home-outline' },
   Compare: { active: 'git-compare', inactive: 'git-compare-outline' },
   History: { active: 'time', inactive: 'time-outline' },

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /**
  * Laboratorio: pasa el JSON que genera tiktok_scraper_hibrido.py por el dominio y el SignalCalculator
  * y muestra el puntaje de autenticidad. Sirve para probar el Paso 4 con datos reales y ajustar umbrales.

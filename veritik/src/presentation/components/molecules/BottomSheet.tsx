@@ -61,7 +61,7 @@ export function BottomSheet({ visible, onClose, title, children }: BottomSheetPr
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.overlay },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: theme.colors.overlay },
   fill: { flex: 1 },
   sheet: {
     // En la web el Modal cubre toda la ventana: el panel se alinea con el marco centrado de App.tsx.
