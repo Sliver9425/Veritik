@@ -5,7 +5,7 @@
 ![React Native](https://img.shields.io/badge/React_Native-Expo-61DAFB?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 ![Arquitectura](https://img.shields.io/badge/Arquitectura-DDD_%2B_Hexagonal-7C5CFF)
-![Pruebas](https://img.shields.io/badge/Pruebas-54_con_Vitest-6E9F18?logo=vitest&logoColor=white)
+![Pruebas](https://img.shields.io/badge/Pruebas-63_con_Vitest-6E9F18?logo=vitest&logoColor=white)
 ![Estado](https://img.shields.io/badge/Estado-Demo_acad%C3%A9mica-FFB020)
 ![Modelo](https://img.shields.io/badge/Modelo-Freemium-2EE6A6)
 
@@ -19,11 +19,6 @@
 | Diego Lema |
 | Damián Quezada  |
 | Carolina Vasco| 
-
-**Universidad Central del Ecuador**
-
-**Periodo académico:** 2026-2027
-
 
 ## 📖 Descripción
 
@@ -40,23 +35,12 @@ La persona escribe un `@usuario` y la app calcula un **puntaje de autenticidad d
 | 🔍 **Análisis de cuentas** | Puntaje de 0 a 100 con nivel alto, medio o bajo. |
 | 📊 **Detalle de señales** | Seis señales con su valor, su estado (Bien, Atención, Riesgo) y una hoja explicativa de "¿Cómo se calcula?". |
 | ⚖️ **Comparador** | Dos análisis lado a lado, también útil para ver la evolución de una misma cuenta. |
-| 🕘 **Recientes e Historial** | **Recientes**, en Inicio, muestra hasta los 3 últimos análisis. La pestaña **Historial** permite consultar hasta los 50 análisis guardados más recientes. Al guardar un cuarto análisis, el primero sale de Recientes y sigue disponible en Historial. |
+| 🕘 **Historial** | Los últimos 50 análisis guardados en el dispositivo. |
 | 🎯 **Medidor animado** | Medidor circular y bottom sheet animados (respetan "reducir movimiento"). |
 | 👋 **Onboarding** | Introducción de 3 pasos, solo la primera vez. |
 | 💎 **Freemium** | 3 análisis gratis al mes; el plan premium se simula con un interruptor de pruebas en la pestaña Perfil. |
 
 **Las seis señales:** engagement real, vistas frente a seguidores, calidad de comentarios, relación seguidores/seguidos, frecuencia de publicación y saltos de seguidores.
-
-### Cómo compara Veritik cuando faltan datos
-
-El comparador vuelve a calcular el puntaje de cada cuenta con un promedio ponderado de las señales que tienen puntaje en **ambos análisis**. Si falta el puntaje de una señal en cualquiera de las cuentas, esa señal y su peso quedan fuera de ambos cálculos. Una señal medida que obtiene cero puntos sí cuenta.
-
-| Señal | Cuenta A | Cuenta B | ¿Se usa para el veredicto? |
-|---|---|---|---|
-| Engagement | 5 % | 2 % | Sí, ambas tienen datos. |
-| Calidad de comentarios | Disponible | Sin datos | Se excluye para ambas cuentas. |
-
-En este ejemplo se compara el engagement. Si los análisis comparten otras señales con puntaje, también se incluyen. Si no comparten ninguna, la app indica que no hay suficientes señales en común para decidir.
 
 ---
 
@@ -86,7 +70,7 @@ infrastructure ───────┘   (implementa los contratos del dominio 
 |---|---|---|
 | `domain/` | Reglas de negocio, entidades, contratos. | ❌ No |
 | `application/` | Casos de uso, calculador de señales, política freemium, DTOs y puertos (`Clock`, `IdGenerator`). | ❌ No |
-| `infrastructure/` | Adaptadores: AsyncStorage, cliente HTTP, repositorio de ejemplo, reloj, generador de ids. | Solo `AsyncStorageAdapter` |
+| `infrastructure/` | Adaptadores: AsyncStorage, cliente HTTP, repositorios de datos de ejemplo y de datos guardados, reloj, generador de ids. | Solo `AsyncStorageAdapter` |
 | `presentation/` | Pantallas, componentes, navegación, tema y estado. | ✅ Sí |
 
 **Casos de uso:** analizar perfil, consultar historial, ver detalle de un análisis, consultar la cuota gratuita, comparar análisis y gestionar el estado de la bienvenida.
@@ -94,20 +78,12 @@ infrastructure ───────┘   (implementa los contratos del dominio 
 ### Inyección de dependencias
 Los casos de uso reciben sus repositorios y puertos por constructor. El ensamblado se hace a mano en una raíz de composición (`infrastructure/di/container.ts`), que no conoce React Native; por eso toda la lógica se puede probar en Node. La configuración real de la app (`appContainer.ts`) elige entre el repositorio de ejemplo y el cliente HTTP según la variable `EXPO_PUBLIC_API_URL`.
 
-### Flujo de análisis con `@tienda_demo`
-
-1. **Presentación.** En `HomeScreen.tsx` escribes `@tienda_demo` y pulsas **Analizar cuenta**. La pantalla valida el nombre y abre `AnalysisScreen.tsx`, que llama al caso de uso.
-2. **Aplicación.** `AnalyzeProfileUseCase.ts` comprueba la cuota, pide el perfil mediante el contrato `ProfileRepository` y busca un análisis anterior de la misma cuenta. Luego usa `SignalCalculator.ts` para calcular las señales disponibles.
-3. **Dominio.** `Profile` y `Signal` representan el perfil y sus señales. Al crear el `AnalysisResult`, `AuthenticityScore` calcula el promedio ponderado de las señales disponibles y determina el nivel. En el primer análisis, la señal de saltos de seguidores queda sin datos porque todavía no hay un perfil anterior.
-4. **Infraestructura.** En modo demo, el contenedor conecta el caso de uso con `MockProfileRepository`, que genera las métricas del perfil y seis videos simulados a partir del nombre. Cuando el caso de uso termina el cálculo, `StorageAnalysisHistoryRepository` guarda el resultado en el dispositivo mediante AsyncStorage.
-
-En una primera consulta simulada, `@tienda_demo` obtiene **98/100 (nivel alto)**. `ResultScreen.tsx` recupera el análisis guardado por su identificador y muestra ese puntaje en el medidor.
-
 ### Diseño atómico y tokens de diseño
 Los componentes se organizan en `atoms/` (`Button`, `Card`, `Chip`, `Screen`) y `molecules/` (`ScoreGauge`, `BottomSheet`, `BackHeader`, `HistoryPickerSheet`). Colores, tipografía, espaciado, radios y duraciones de animación están centralizados en `presentation/theme/`.
 
 ### Calidad
-- 🧪 **54 pruebas automatizadas con Vitest** (más de 50): unitarias y de integración, con repositorios falsos en memoria. Cubren dominio, casos de uso, persistencia, cliente HTTP y el contenedor de dependencias.
+- 🧪 **63 pruebas automatizadas con Vitest** (más de 50): unitarias y de integración, con repositorios falsos en memoria. Cubren dominio, casos de uso, persistencia, cliente HTTP, datos de ejemplo y reales, y el contenedor de dependencias (detalle en el manual, sección 7).
+- 🐍 **7 pruebas del backend** con `unittest` (mapeo de datos de TikTok al contrato de la app).
 - 🔒 **TypeScript estricto**: `strict`, `noUncheckedIndexedAccess`, `noUnusedLocals` y `noUnusedParameters`.
 - ♿ **Accesibilidad**: contraste WCAG AA, áreas táctiles de 44 pt o más, estados que no dependen solo del color y etiquetas para lectores de pantalla.
 - 🔐 **Privacidad desde el diseño**: solo datos públicos; de los comentarios se guardan únicamente conteos, sin texto ni nombres de usuario.
@@ -118,11 +94,13 @@ Los componentes se organizan en `atoms/` (`Button`, `Card`, `Chip`, `Screen`) y 
 veritik/
 ├─ App.tsx
 ├─ .env.example
+├─ metro.config.js           Evita que Expo vigile la carpeta backend/
+├─ backend/                  Servidor OPCIONAL (FastAPI + Playwright) que sirve datos reales
 ├─ scripts/                  Laboratorio para probar el calculador con datos reales
 └─ src/
    ├─ domain/                Entidades, value objects, servicios y contratos
    ├─ application/           Casos de uso, calculador de señales, políticas, puertos
-   ├─ infrastructure/        Persistencia, cliente HTTP, repositorio de ejemplo, DI
+   ├─ infrastructure/        Persistencia, cliente HTTP, datos de ejemplo y guardados, DI
    └─ presentation/
       ├─ components/         atoms/ · molecules/
       ├─ screens/            Onboarding, Inicio, Análisis, Resultado, Detalle, Comparar, Historial, Perfil
@@ -158,12 +136,13 @@ veritik/
 | **Vitest** | Ejecución de las pruebas. |
 | `tsx`, `@types/node` | Script de laboratorio en `scripts/`. |
 
-### 🐍 Scraping y análisis (Python, proyecto separado)
+### 🐍 Backend opcional y análisis de contenido (Python)
 
-> Estas herramientas **no forman parte de la app** ni son necesarias para ejecutarla.
+> Estas herramientas **no forman parte de la app móvil** ni son necesarias para ejecutarla. El backend (`backend/`) es opcional; los modelos de NLP viven en un script de Python aparte.
 
 | Tecnología | Uso |
 |---|---|
+| **FastAPI** + **Uvicorn** | Servidor opcional (`backend/`) que expone `GET /profiles/{usuario}` a la app. |
 | **Playwright** (con Google Chrome) | Navegación y captura de datos públicos de TikTok. |
 | **BeautifulSoup4** y **requests** | Versión híbrida y versión comparativa (esta última, bloqueada por TikTok). |
 | **yt-dlp** (+ `curl-cffi`) y **ffmpeg** | Descarga y procesamiento de audio. |
@@ -178,7 +157,7 @@ veritik/
 
 ## ⚠️ Aclaraciones importantes (lo que NO incluye)
 
-- 🚫 **No hay backend conectado.** La app funciona con **datos de ejemplo** generados por `MockProfileRepository`: perfiles inventados, estables para cada usuario. El cliente HTTP (`HttpProfileRepository`) y su contrato con el servidor están implementados y probados, pero el servidor no se construyó.
+- 🔌 **El backend es opcional y no viene activado.** Por defecto la app funciona con **datos de ejemplo** generados por `MockProfileRepository` (perfiles inventados, estables para cada usuario) y con los **datos guardados de una cuenta pública** (`calla.nomas`) exportados con el scraper, para mostrar un caso real. En `backend/` hay un servidor (FastAPI + Playwright) que, al ejecutarlo en tu PC y definir `EXPO_PUBLIC_API_URL`, sirve datos reales de TikTok. **No está desplegado en internet, no tiene autenticación, no recolecta comentarios** y puede dejar de funcionar si TikTok cambia su estructura.
 - 🚫 **No usa SQLite.** Toda la persistencia local es con **AsyncStorage**.
 - 🚫 **Los modelos de NLP no están en la app.** Whisper, la traducción, el sentimiento y el Big Five forman parte de un **script de Python separado**. El Big Five se excluyó del producto por no ser fiable con textos cortos.
 - 🚫 **Los pesos y umbrales del puntaje son hipótesis** sin calibrar con cuentas reales. Las cifras son orientativas.
@@ -189,35 +168,36 @@ veritik/
 
 ## 🚀 Manual de configuración local
 
-La demo usa perfiles simulados. Para probarla en un iPhone físico con Expo Go, inicia sesión con la misma cuenta de Expo en el iPhone y en la terminal del computador.
+Sigue estos pasos en orden. No necesitas cuentas ni claves.
 
 ### 1️⃣ Prerrequisitos
 
 | Qué | Cómo comprobarlo |
 |---|---|
-| **Node.js y npm** | Se recomienda Node.js 24 LTS. Comprueba la instalación con `node -v` y `npm -v`. [Descargar Node.js](https://nodejs.org) |
+| **Node.js** (versión LTS) | Abre una terminal y ejecuta `node -v`. Debe mostrar un número de versión. Si no, instálalo desde [nodejs.org](https://nodejs.org). |
 | **Git** | Ejecuta `git --version`. Si no, instálalo desde [git-scm.com](https://git-scm.com). |
-| **Expo Go compatible** | Veritik usa **Expo SDK 58**. Comprueba que puedas instalar una edición de Expo Go compatible con ese SDK para tu dispositivo. [Versiones de Expo Go](https://expo.dev/go) |
-| **Misma red Wi-Fi** | Para conectarte por red local, conecta el celular y el computador a la misma red. |
+| **Expo Go** en tu celular | Descárgala gratis desde App Store (iPhone) o Google Play (Android). |
+| **Misma red Wi-Fi** | El celular y el computador deben estar conectados a la misma red. |
+| **Python 3.11+ y Google Chrome** | *Solo si usas el backend opcional* (ver el final de este manual). |
 
 ### 2️⃣ Clonar el repositorio
 
 ```bash
-git clone https://github.com/Sliver9425/Veritik.git
-cd Veritik/veritik
+git clone https://github.com/TU_USUARIO/veritik.git
+cd veritik
 ```
 
-Ejecuta los siguientes comandos desde esa subcarpeta, donde están `package.json` y `package-lock.json`.
+> Reemplaza `TU_USUARIO/veritik` por la dirección real del repositorio.
 
 ### 3️⃣ Instalar dependencias
 
-Instala las versiones fijadas en `package-lock.json`:
+El proyecto ya incluye su `package.json`, así que basta con:
 
 ```bash
-npm ci
+npm install
 ```
 
-En PowerShell, si Windows bloquea los scripts `.ps1` de npm, usa `npm.cmd ci` y `npx.cmd` en lugar de `npx` en los comandos de esta guía.
+Espera a que termine y vuelva a aparecer la línea de comandos. Puede tardar unos minutos.
 
 ### 4️⃣ Levantar el servidor de desarrollo
 
@@ -225,17 +205,12 @@ En PowerShell, si Windows bloquea los scripts `.ps1` de npm, usa `npm.cmd ci` y 
 npx expo start
 ```
 
-Deja abierta la terminal. Expo mostrará un **código QR** para abrir el proyecto en Expo Go.
+Aparecerá un **código QR** en la terminal.
 
 ### 5️⃣ Abrir la app
 
-**iPhone físico**
-
-1. Usa una edición de Expo Go compatible con el SDK 58. Si la edición de App Store usa otro SDK, Expo documenta una alternativa con TestFlight para equipos del Apple Developer Program. [Compatibilidad de Expo Go](https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/)
-2. Ejecuta `npx expo login` en otra terminal del computador. En Expo Go, toca el icono de cuenta e inicia sesión con **la misma cuenta**. Puedes comprobar la sesión de la terminal con `npx expo whoami`. [Inicio de sesión en Expo Go](https://docs.expo.dev/troubleshooting/expo-go-sign-in-required/)
-3. Con ambos dispositivos en la misma red Wi-Fi, abre **Cámara** en el iPhone, apunta al QR de la terminal y toca **Abrir en Expo Go**. Si ya estabas en la pantalla del aviso de cuenta, toca **Try Again**.
-
 - 📱 **Android:** abre Expo Go y toca *Scan QR code*.
+- 📱 **iPhone:** abre la cámara y apunta al código QR; te llevará a Expo Go.
 - 💻 También puedes presionar `w` en la terminal para verla en el navegador, o `a` / `i` si tienes un emulador de Android o iOS.
 
 La primera carga tarda un poco mientras se compila el código.
@@ -246,7 +221,8 @@ La app usa datos de ejemplo. Según el nombre de usuario que escribas obtendrás
 
 | Escribe | Resultado |
 |---|---|
-| `creadora.demo` (o cualquier otro nombre) | Puntaje **alto**. |
+| `calla.nomas` | **Datos reales guardados** de una cuenta pública (puntaje alto). |
+| `creadora.demo` (o cualquier otro nombre) | Puntaje **alto** (datos inventados). |
 | `medio.demo` o un nombre con `mixta` | Puntaje **medio**. |
 | `fake.demo` o un nombre con `falsa` o `inflad` | Puntaje **bajo**. |
 | `cuenta.privada` | Error de cuenta privada. |
@@ -257,28 +233,76 @@ Recorrido sugerido: analiza dos cuentas distintas, toca cada señal del detalle,
 
 ### 7️⃣ Ejecutar las pruebas (opcional)
 
+Las pruebas usan **Vitest** y **no necesitan celular, emulador ni internet**.
+
 ```bash
 npx vitest run
 ```
 
-Deben pasar las **54 pruebas**.
+Deben pasar las **63 pruebas**.
+
+#### 🔧 Comandos útiles
+
+| Comando | Para qué sirve |
+|---|---|
+| `npx vitest run` | Ejecuta todas las pruebas una vez. |
+| `npx vitest` | Modo observador: vuelve a ejecutar las pruebas cada vez que guardas un archivo. |
+| `npx vitest run --reporter=verbose` | Muestra el nombre de cada prueba y si pasó. |
+| `npx vitest run src/domain` | Solo una capa (`src/domain`, `src/application` o `src/infrastructure`). |
+| `npx vitest run src/infrastructure/__tests__/fixtures.test.ts` | Un archivo concreto. |
+| `npx vitest run -t "cuota"` | Solo las pruebas cuyo nombre contiene ese texto. |
+
+#### 🧪 Qué se prueba
+
+Las pruebas verifican **reglas y flujos**, no pantallas. Se ejecutan con repositorios falsos en memoria, un reloj fijo y un generador de ids predecible, así que dan siempre el mismo resultado.
+
+| Capa | Pruebas | Qué verifican (en general) |
+|---|---|---|
+| **Dominio** | 18 | Validación del usuario de TikTok, rechazo de métricas inválidas, métricas derivadas del perfil, puntaje ponderado (se recalcula cuando falta una señal), niveles alto/medio/bajo y comparación justa entre dos cuentas. |
+| **Aplicación** | 16 | Flujo completo de analizar una cuenta (validar, revisar cuota, obtener, calcular, guardar), cuota gratuita y plan premium, que un error no gaste cuota, historial, detalle, comparación y estado de la bienvenida. |
+| **Infraestructura** | 29 | Persistencia (guardar y leer, orden, límite, registros dañados, contador por mes), cliente HTTP (URL, códigos de error, sin conexión, respuesta inválida), datos de ejemplo y reales guardados, y el contenedor de dependencias funcionando de punta a punta. |
+
+**Lo que no cubren:** las pantallas, la navegación, las animaciones y el scraping contra TikTok real. Eso se prueba ejecutando la app en Expo Go.
+
+El backend opcional tiene sus propias pruebas (Python, 7 pruebas del mapeo de datos):
+
+```bash
+cd backend
+python -m unittest -v test_mapper
+```
 
 ### 🛠️ Solución de problemas
 
 | Problema | Solución |
 |---|---|
-| El celular no conecta con el servidor | Comprueba que estén en la misma red Wi-Fi y que Expo siga corriendo. Si la red impide la comunicación entre dispositivos, detén Expo con `Ctrl + C`, ejecuta `npx expo start --tunnel` y escanea el nuevo QR. |
-| Expo Go pide iniciar sesión | Ejecuta `npx expo login` en el computador e inicia sesión con la misma cuenta en el iPhone. Luego toca **Try Again**. |
-| Expo Go indica que el proyecto es incompatible | Comprueba que la edición instalada admita Expo SDK 58. [Opciones para instalar una edición compatible](https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/) |
+| El celular no conecta con el servidor | Comprueba que ambos estén en la misma red Wi-Fi, o usa `npx expo start --tunnel`. |
 | Error de caché o de un módulo que "no se encuentra" | Detén el servidor con `Ctrl + C` y ejecuta `npx expo start -c`. |
-| `Unable to resolve "<paquete>"` | Comprueba que estás en `Veritik/veritik`, reinstala con `npm ci` y vuelve a iniciar Expo con `npx expo start -c`. |
+| `Unable to resolve "<paquete>"` | Ejecuta `npm install` otra vez. Si persiste, instálalo con `npx expo install <paquete>`. |
 | Pantalla en blanco unos segundos | Es normal: se está cargando la fuente Inter. |
 | Quiero ver la bienvenida otra vez | Pestaña **Perfil**, botón *Ver la introducción otra vez*. |
 | Quiero repetir las pruebas de cuota | Pestaña **Perfil**, botón *Reiniciar historial y contador*. |
 
-### 🔌 Opcional: conectar un backend propio
+### 🔌 Opcional: usar datos reales con el backend
 
-Si algún día existe un servidor que cumpla el contrato descrito en `HttpProfileRepository.ts`, copia `.env.example` como `.env`, descomenta la línea `EXPO_PUBLIC_API_URL` y escribe la dirección de tu servidor (en el celular no sirve `localhost`: usa la IP de tu computador en la red). Reinicia con `npx expo start -c`. Sin esa variable, la app usa los datos de ejemplo.
+> Solo si quieres datos reales de TikTok. **No es necesario** para ejecutar ni evaluar la app.
+
+Requisitos adicionales: **Python 3.11 o superior** y **Google Chrome** instalado.
+
+1. En una **segunda terminal**, desde la raíz del proyecto:
+   ```bash
+   cd backend
+   python -m venv venv
+   venv\Scripts\activate          # Windows (en macOS/Linux: source venv/bin/activate)
+   pip install -r requirements.txt
+   uvicorn app:app --host 0.0.0.0 --port 8000
+   ```
+   > En Windows **no uses `--reload`**: rompe Playwright.
+2. Comprueba que funciona abriendo `http://localhost:8000/health` en el navegador del computador.
+3. Averigua la IP de tu computador en la red Wi-Fi (`ipconfig`, línea "Dirección IPv4"). Si Windows pregunta por el firewall, permite el acceso en redes privadas.
+4. En la raíz del proyecto, copia `.env.example` como `.env`, descomenta la línea `EXPO_PUBLIC_API_URL` y escribe tu IP, por ejemplo `http://192.168.1.10:8000` (en el celular no sirve `localhost`).
+5. Reinicia la app con `npx expo start -c`. En la pestaña **Perfil** debe decir *servidor de análisis*.
+
+Cada análisis abre una ventana de Chrome en el computador y tarda entre 15 y 40 segundos. Si aparece un **captcha**, resuélvelo en esa ventana (el servidor espera hasta 90 segundos). El archivo `metro.config.js` evita que Expo vigile la carpeta `backend/`. Más detalles en `backend/README.md`.
 
 ---
 
