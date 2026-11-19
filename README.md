@@ -83,6 +83,15 @@ infrastructure ───────┘   (implementa los contratos del dominio 
 ### Inyección de dependencias
 Los casos de uso reciben sus repositorios y puertos por constructor. El ensamblado se hace a mano en una raíz de composición (`infrastructure/di/container.ts`), que no conoce React Native; por eso toda la lógica se puede probar en Node. La configuración real de la app (`appContainer.ts`) elige entre el repositorio de ejemplo y el cliente HTTP según la variable `EXPO_PUBLIC_API_URL`.
 
+### Flujo de análisis con `@tienda_demo`
+
+1. **Presentación.** En `HomeScreen.tsx` escribes `@tienda_demo` y pulsas **Analizar cuenta**. La pantalla valida el nombre y abre `AnalysisScreen.tsx`, que llama al caso de uso.
+2. **Aplicación.** `AnalyzeProfileUseCase.ts` comprueba la cuota, pide el perfil mediante el contrato `ProfileRepository` y busca un análisis anterior de la misma cuenta. Luego usa `SignalCalculator.ts` para calcular las señales disponibles.
+3. **Dominio.** `Profile` y `Signal` representan el perfil y sus señales. Al crear el `AnalysisResult`, `AuthenticityScore` calcula el promedio ponderado de las señales disponibles y determina el nivel. En el primer análisis, la señal de saltos de seguidores queda sin datos porque todavía no hay un perfil anterior.
+4. **Infraestructura.** En modo demo, el contenedor conecta el caso de uso con `MockProfileRepository`, que genera las métricas del perfil y seis videos simulados a partir del nombre. Cuando el caso de uso termina el cálculo, `StorageAnalysisHistoryRepository` guarda el resultado en el dispositivo mediante AsyncStorage.
+
+En una primera consulta simulada, `@tienda_demo` obtiene **98/100 (nivel alto)**. `ResultScreen.tsx` recupera el análisis guardado por su identificador y muestra ese puntaje en el medidor.
+
 ### Diseño atómico y tokens de diseño
 Los componentes se organizan en `atoms/` (`Button`, `Card`, `Chip`, `Screen`) y `molecules/` (`ScoreGauge`, `BottomSheet`, `BackHeader`, `HistoryPickerSheet`). Colores, tipografía, espaciado, radios y duraciones de animación están centralizados en `presentation/theme/`.
 
