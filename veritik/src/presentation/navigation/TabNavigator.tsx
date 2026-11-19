@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Platform } from 'react-native';
 import { theme } from '../theme';
 import { CompareScreen } from '../screens/CompareScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
@@ -23,7 +24,13 @@ export function TabNavigator() {
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primaryAccent,
         tabBarInactiveTintColor: theme.colors.textSecondary,
-        tabBarStyle: { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border },
+        // Etiqueta siempre debajo del ícono, como en el teléfono (en pantallas anchas la librería la pone al lado).
+        tabBarLabelPosition: 'below-icon',
+        tabBarStyle: [
+          { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.border },
+          // En la web la barra mide 49 px y corta las etiquetas; se le da el alto de la barra nativa.
+          Platform.OS === 'web' && { height: 64, paddingBottom: theme.spacing.xs },
+        ],
         tabBarLabelStyle: { fontFamily: theme.fontFamily.medium, fontSize: 12 },
         tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => (
           <Ionicons name={focused ? ICONS[route.name].active : ICONS[route.name].inactive} size={size} color={color} />

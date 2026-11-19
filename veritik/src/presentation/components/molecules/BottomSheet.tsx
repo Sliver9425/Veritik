@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Modal, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../../theme';
@@ -64,6 +64,8 @@ const styles = StyleSheet.create({
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.overlay },
   fill: { flex: 1 },
   sheet: {
+    // En la web el Modal cubre toda la ventana: el panel se alinea con el marco centrado de App.tsx.
+    ...(Platform.OS === 'web' && { width: '100%', maxWidth: theme.layout.webMaxWidth, alignSelf: 'center' }),
     backgroundColor: theme.colors.surfaceElevated,
     borderTopLeftRadius: theme.radius.lg,
     borderTopRightRadius: theme.radius.lg,

@@ -39,4 +39,6 @@ export const layout = {
   /** Tamaño de referencia del diseño (iPhone 15). */
   referenceWidth: 393,
   referenceHeight: 852,
+  /** Ancho máximo en la web: en pantallas grandes la app se muestra como un teléfono centrado. */
+  webMaxWidth: 430,
 } as const;
