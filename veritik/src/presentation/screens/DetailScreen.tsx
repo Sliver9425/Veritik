@@ -103,3 +103,4 @@ const styles = StyleSheet.create({
   sheetValue: { ...theme.typography.metric, color: theme.colors.textPrimary },
   sheetText: { ...theme.typography.bodySmall, color: theme.colors.textOnSheet },
 });
+ 
