@@ -47,6 +47,17 @@ La persona escribe un `@usuario` y la app calcula un **puntaje de autenticidad d
 
 **Las seis señales:** engagement real, vistas frente a seguidores, calidad de comentarios, relación seguidores/seguidos, frecuencia de publicación y saltos de seguidores.
 
+### Cómo compara Veritik cuando faltan datos
+
+El comparador vuelve a calcular el puntaje de cada cuenta con un promedio ponderado de las señales que tienen puntaje en **ambos análisis**. Si falta el puntaje de una señal en cualquiera de las cuentas, esa señal y su peso quedan fuera de ambos cálculos. Una señal medida que obtiene cero puntos sí cuenta.
+
+| Señal | Cuenta A | Cuenta B | ¿Se usa para el veredicto? |
+|---|---|---|---|
+| Engagement | 5 % | 2 % | Sí, ambas tienen datos. |
+| Calidad de comentarios | Disponible | Sin datos | Se excluye para ambas cuentas. |
+
+En este ejemplo se compara el engagement. Si los análisis comparten otras señales con puntaje, también se incluyen. Si no comparten ninguna, la app indica que no hay suficientes señales en común para decidir.
+
 ---
 
 ## 🏗️ Metodología y arquitectura
