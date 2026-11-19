@@ -169,35 +169,35 @@ veritik/
 
 ## 🚀 Manual de configuración local
 
-Sigue estos pasos en orden. No necesitas cuentas ni claves.
+La demo usa perfiles simulados. Para probarla en un iPhone físico con Expo Go, inicia sesión con la misma cuenta de Expo en el iPhone y en la terminal del computador.
 
 ### 1️⃣ Prerrequisitos
 
 | Qué | Cómo comprobarlo |
 |---|---|
-| **Node.js** (versión LTS) | Abre una terminal y ejecuta `node -v`. Debe mostrar un número de versión. Si no, instálalo desde [nodejs.org](https://nodejs.org). |
+| **Node.js y npm** | Se recomienda Node.js 24 LTS. Comprueba la instalación con `node -v` y `npm -v`. [Descargar Node.js](https://nodejs.org) |
 | **Git** | Ejecuta `git --version`. Si no, instálalo desde [git-scm.com](https://git-scm.com). |
-| **Expo Go** en tu celular | Descárgala gratis desde App Store (iPhone) o Google Play (Android). |
-| **Misma red Wi-Fi** | El celular y el computador deben estar conectados a la misma red. |
+| **Expo Go compatible** | Veritik usa **Expo SDK 58**. Comprueba que puedas instalar una edición de Expo Go compatible con ese SDK para tu dispositivo. [Versiones de Expo Go](https://expo.dev/go) |
+| **Misma red Wi-Fi** | Para conectarte por red local, conecta el celular y el computador a la misma red. |
 
 ### 2️⃣ Clonar el repositorio
 
 ```bash
 git clone https://github.com/Sliver9425/Veritik.git
-cd veritik
+cd Veritik/veritik
 ```
 
-> Reemplaza `TU_USUARIO/veritik` por la dirección real del repositorio.
+Ejecuta los siguientes comandos desde esa subcarpeta, donde están `package.json` y `package-lock.json`.
 
 ### 3️⃣ Instalar dependencias
 
-El proyecto ya incluye su `package.json`, así que basta con:
+Instala las versiones fijadas en `package-lock.json`:
 
 ```bash
-npm install
+npm ci
 ```
 
-Espera a que termine y vuelva a aparecer la línea de comandos. Puede tardar unos minutos.
+En PowerShell, si Windows bloquea los scripts `.ps1` de npm, usa `npm.cmd ci` y `npx.cmd` en lugar de `npx` en los comandos de esta guía.
 
 ### 4️⃣ Levantar el servidor de desarrollo
 
@@ -205,12 +205,17 @@ Espera a que termine y vuelva a aparecer la línea de comandos. Puede tardar uno
 npx expo start
 ```
 
-Aparecerá un **código QR** en la terminal.
+Deja abierta la terminal. Expo mostrará un **código QR** para abrir el proyecto en Expo Go.
 
 ### 5️⃣ Abrir la app
 
+**iPhone físico**
+
+1. Usa una edición de Expo Go compatible con el SDK 58. Si la edición de App Store usa otro SDK, Expo documenta una alternativa con TestFlight para equipos del Apple Developer Program. [Compatibilidad de Expo Go](https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/)
+2. Ejecuta `npx expo login` en otra terminal del computador. En Expo Go, toca el icono de cuenta e inicia sesión con **la misma cuenta**. Puedes comprobar la sesión de la terminal con `npx expo whoami`. [Inicio de sesión en Expo Go](https://docs.expo.dev/troubleshooting/expo-go-sign-in-required/)
+3. Con ambos dispositivos en la misma red Wi-Fi, abre **Cámara** en el iPhone, apunta al QR de la terminal y toca **Abrir en Expo Go**. Si ya estabas en la pantalla del aviso de cuenta, toca **Try Again**.
+
 - 📱 **Android:** abre Expo Go y toca *Scan QR code*.
-- 📱 **iPhone:** abre la cámara y apunta al código QR; te llevará a Expo Go.
 - 💻 También puedes presionar `w` en la terminal para verla en el navegador, o `a` / `i` si tienes un emulador de Android o iOS.
 
 La primera carga tarda un poco mientras se compila el código.
@@ -242,9 +247,11 @@ Deben pasar las **54 pruebas**.
 
 | Problema | Solución |
 |---|---|
-| El celular no conecta con el servidor | Comprueba que ambos estén en la misma red Wi-Fi, o usa `npx expo start --tunnel`. |
+| El celular no conecta con el servidor | Comprueba que estén en la misma red Wi-Fi y que Expo siga corriendo. Si la red impide la comunicación entre dispositivos, detén Expo con `Ctrl + C`, ejecuta `npx expo start --tunnel` y escanea el nuevo QR. |
+| Expo Go pide iniciar sesión | Ejecuta `npx expo login` en el computador e inicia sesión con la misma cuenta en el iPhone. Luego toca **Try Again**. |
+| Expo Go indica que el proyecto es incompatible | Comprueba que la edición instalada admita Expo SDK 58. [Opciones para instalar una edición compatible](https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/) |
 | Error de caché o de un módulo que "no se encuentra" | Detén el servidor con `Ctrl + C` y ejecuta `npx expo start -c`. |
-| `Unable to resolve "<paquete>"` | Ejecuta `npm install` otra vez. Si persiste, instálalo con `npx expo install <paquete>`. |
+| `Unable to resolve "<paquete>"` | Comprueba que estás en `Veritik/veritik`, reinstala con `npm ci` y vuelve a iniciar Expo con `npx expo start -c`. |
 | Pantalla en blanco unos segundos | Es normal: se está cargando la fuente Inter. |
 | Quiero ver la bienvenida otra vez | Pestaña **Perfil**, botón *Ver la introducción otra vez*. |
 | Quiero repetir las pruebas de cuota | Pestaña **Perfil**, botón *Reiniciar historial y contador*. |
