@@ -40,12 +40,23 @@ La persona escribe un `@usuario` y la app calcula un **puntaje de autenticidad d
 | 🔍 **Análisis de cuentas** | Puntaje de 0 a 100 con nivel alto, medio o bajo. |
 | 📊 **Detalle de señales** | Seis señales con su valor, su estado (Bien, Atención, Riesgo) y una hoja explicativa de "¿Cómo se calcula?". |
 | ⚖️ **Comparador** | Dos análisis lado a lado, también útil para ver la evolución de una misma cuenta. |
-| 🕘 **Historial** | Los últimos 50 análisis guardados en el dispositivo. |
+| 🕘 **Recientes e Historial** | **Recientes**, en Inicio, muestra hasta los 3 últimos análisis. La pestaña **Historial** permite consultar hasta los 50 análisis guardados más recientes. Al guardar un cuarto análisis, el primero sale de Recientes y sigue disponible en Historial. |
 | 🎯 **Medidor animado** | Medidor circular y bottom sheet animados (respetan "reducir movimiento"). |
 | 👋 **Onboarding** | Introducción de 3 pasos, solo la primera vez. |
 | 💎 **Freemium** | 3 análisis gratis al mes; el plan premium se simula con un interruptor de pruebas en la pestaña Perfil. |
 
 **Las seis señales:** engagement real, vistas frente a seguidores, calidad de comentarios, relación seguidores/seguidos, frecuencia de publicación y saltos de seguidores.
+
+### Cómo compara Veritik cuando faltan datos
+
+El comparador vuelve a calcular el puntaje de cada cuenta con un promedio ponderado de las señales que tienen puntaje en **ambos análisis**. Si falta el puntaje de una señal en cualquiera de las cuentas, esa señal y su peso quedan fuera de ambos cálculos. Una señal medida que obtiene cero puntos sí cuenta.
+
+| Señal | Cuenta A | Cuenta B | ¿Se usa para el veredicto? |
+|---|---|---|---|
+| Engagement | 5 % | 2 % | Sí, ambas tienen datos. |
+| Calidad de comentarios | Disponible | Sin datos | Se excluye para ambas cuentas. |
+
+En este ejemplo se compara el engagement. Si los análisis comparten otras señales con puntaje, también se incluyen. Si no comparten ninguna, la app indica que no hay suficientes señales en común para decidir.
 
 ---
 
@@ -82,6 +93,15 @@ infrastructure ───────┘   (implementa los contratos del dominio 
 
 ### Inyección de dependencias
 Los casos de uso reciben sus repositorios y puertos por constructor. El ensamblado se hace a mano en una raíz de composición (`infrastructure/di/container.ts`), que no conoce React Native; por eso toda la lógica se puede probar en Node. La configuración real de la app (`appContainer.ts`) elige entre el repositorio de ejemplo y el cliente HTTP según la variable `EXPO_PUBLIC_API_URL`.
+
+### Flujo de análisis con `@tienda_demo`
+
+1. **Presentación.** En `HomeScreen.tsx` escribes `@tienda_demo` y pulsas **Analizar cuenta**. La pantalla valida el nombre y abre `AnalysisScreen.tsx`, que llama al caso de uso.
+2. **Aplicación.** `AnalyzeProfileUseCase.ts` comprueba la cuota, pide el perfil mediante el contrato `ProfileRepository` y busca un análisis anterior de la misma cuenta. Luego usa `SignalCalculator.ts` para calcular las señales disponibles.
+3. **Dominio.** `Profile` y `Signal` representan el perfil y sus señales. Al crear el `AnalysisResult`, `AuthenticityScore` calcula el promedio ponderado de las señales disponibles y determina el nivel. En el primer análisis, la señal de saltos de seguidores queda sin datos porque todavía no hay un perfil anterior.
+4. **Infraestructura.** En modo demo, el contenedor conecta el caso de uso con `MockProfileRepository`, que genera las métricas del perfil y seis videos simulados a partir del nombre. Cuando el caso de uso termina el cálculo, `StorageAnalysisHistoryRepository` guarda el resultado en el dispositivo mediante AsyncStorage.
+
+En una primera consulta simulada, `@tienda_demo` obtiene **98/100 (nivel alto)**. `ResultScreen.tsx` recupera el análisis guardado por su identificador y muestra ese puntaje en el medidor.
 
 ### Diseño atómico y tokens de diseño
 Los componentes se organizan en `atoms/` (`Button`, `Card`, `Chip`, `Screen`) y `molecules/` (`ScoreGauge`, `BottomSheet`, `BackHeader`, `HistoryPickerSheet`). Colores, tipografía, espaciado, radios y duraciones de animación están centralizados en `presentation/theme/`.
@@ -169,35 +189,35 @@ veritik/
 
 ## 🚀 Manual de configuración local
 
-Sigue estos pasos en orden. No necesitas cuentas ni claves.
+La demo usa perfiles simulados. Para probarla en un iPhone físico con Expo Go, inicia sesión con la misma cuenta de Expo en el iPhone y en la terminal del computador.
 
 ### 1️⃣ Prerrequisitos
 
 | Qué | Cómo comprobarlo |
 |---|---|
-| **Node.js** (versión LTS) | Abre una terminal y ejecuta `node -v`. Debe mostrar un número de versión. Si no, instálalo desde [nodejs.org](https://nodejs.org). |
+| **Node.js y npm** | Se recomienda Node.js 24 LTS. Comprueba la instalación con `node -v` y `npm -v`. [Descargar Node.js](https://nodejs.org) |
 | **Git** | Ejecuta `git --version`. Si no, instálalo desde [git-scm.com](https://git-scm.com). |
-| **Expo Go** en tu celular | Descárgala gratis desde App Store (iPhone) o Google Play (Android). |
-| **Misma red Wi-Fi** | El celular y el computador deben estar conectados a la misma red. |
+| **Expo Go compatible** | Veritik usa **Expo SDK 58**. Comprueba que puedas instalar una edición de Expo Go compatible con ese SDK para tu dispositivo. [Versiones de Expo Go](https://expo.dev/go) |
+| **Misma red Wi-Fi** | Para conectarte por red local, conecta el celular y el computador a la misma red. |
 
 ### 2️⃣ Clonar el repositorio
 
 ```bash
 git clone https://github.com/Sliver9425/Veritik.git
-cd veritik
+cd Veritik/veritik
 ```
 
-> Reemplaza `TU_USUARIO/veritik` por la dirección real del repositorio.
+Ejecuta los siguientes comandos desde esa subcarpeta, donde están `package.json` y `package-lock.json`.
 
 ### 3️⃣ Instalar dependencias
 
-El proyecto ya incluye su `package.json`, así que basta con:
+Instala las versiones fijadas en `package-lock.json`:
 
 ```bash
-npm install
+npm ci
 ```
 
-Espera a que termine y vuelva a aparecer la línea de comandos. Puede tardar unos minutos.
+En PowerShell, si Windows bloquea los scripts `.ps1` de npm, usa `npm.cmd ci` y `npx.cmd` en lugar de `npx` en los comandos de esta guía.
 
 ### 4️⃣ Levantar el servidor de desarrollo
 
@@ -205,12 +225,17 @@ Espera a que termine y vuelva a aparecer la línea de comandos. Puede tardar uno
 npx expo start
 ```
 
-Aparecerá un **código QR** en la terminal.
+Deja abierta la terminal. Expo mostrará un **código QR** para abrir el proyecto en Expo Go.
 
 ### 5️⃣ Abrir la app
 
+**iPhone físico**
+
+1. Usa una edición de Expo Go compatible con el SDK 58. Si la edición de App Store usa otro SDK, Expo documenta una alternativa con TestFlight para equipos del Apple Developer Program. [Compatibilidad de Expo Go](https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/)
+2. Ejecuta `npx expo login` en otra terminal del computador. En Expo Go, toca el icono de cuenta e inicia sesión con **la misma cuenta**. Puedes comprobar la sesión de la terminal con `npx expo whoami`. [Inicio de sesión en Expo Go](https://docs.expo.dev/troubleshooting/expo-go-sign-in-required/)
+3. Con ambos dispositivos en la misma red Wi-Fi, abre **Cámara** en el iPhone, apunta al QR de la terminal y toca **Abrir en Expo Go**. Si ya estabas en la pantalla del aviso de cuenta, toca **Try Again**.
+
 - 📱 **Android:** abre Expo Go y toca *Scan QR code*.
-- 📱 **iPhone:** abre la cámara y apunta al código QR; te llevará a Expo Go.
 - 💻 También puedes presionar `w` en la terminal para verla en el navegador, o `a` / `i` si tienes un emulador de Android o iOS.
 
 La primera carga tarda un poco mientras se compila el código.
@@ -242,9 +267,11 @@ Deben pasar las **54 pruebas**.
 
 | Problema | Solución |
 |---|---|
-| El celular no conecta con el servidor | Comprueba que ambos estén en la misma red Wi-Fi, o usa `npx expo start --tunnel`. |
+| El celular no conecta con el servidor | Comprueba que estén en la misma red Wi-Fi y que Expo siga corriendo. Si la red impide la comunicación entre dispositivos, detén Expo con `Ctrl + C`, ejecuta `npx expo start --tunnel` y escanea el nuevo QR. |
+| Expo Go pide iniciar sesión | Ejecuta `npx expo login` en el computador e inicia sesión con la misma cuenta en el iPhone. Luego toca **Try Again**. |
+| Expo Go indica que el proyecto es incompatible | Comprueba que la edición instalada admita Expo SDK 58. [Opciones para instalar una edición compatible](https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/) |
 | Error de caché o de un módulo que "no se encuentra" | Detén el servidor con `Ctrl + C` y ejecuta `npx expo start -c`. |
-| `Unable to resolve "<paquete>"` | Ejecuta `npm install` otra vez. Si persiste, instálalo con `npx expo install <paquete>`. |
+| `Unable to resolve "<paquete>"` | Comprueba que estás en `Veritik/veritik`, reinstala con `npm ci` y vuelve a iniciar Expo con `npx expo start -c`. |
 | Pantalla en blanco unos segundos | Es normal: se está cargando la fuente Inter. |
 | Quiero ver la bienvenida otra vez | Pestaña **Perfil**, botón *Ver la introducción otra vez*. |
 | Quiero repetir las pruebas de cuota | Pestaña **Perfil**, botón *Reiniciar historial y contador*. |
