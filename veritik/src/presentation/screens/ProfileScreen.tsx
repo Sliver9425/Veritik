@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/atoms/Button';
 import { Card } from '../components/atoms/Card';
 import { Screen } from '../components/atoms/Screen';
@@ -8,77 +8,145 @@ import type { TabScreenProps } from '../navigation/types';
 import { useSessionStore } from '../store/useSessionStore';
 import { theme } from '../theme';
 
-/** Perfil y ajustes. Por ahora incluye herramientas de PRUEBA (plan y reinicio de datos). */
+type SubscriptionDetailKey = 'modality' | 'limits';
+
 export function ProfileScreen({ navigation }: TabScreenProps<'Profile'>) {
   const isPremium = useSessionStore((s) => s.isPremium);
   const togglePremium = useSessionStore((s) => s.togglePremium);
+
+  const [expandedDetail, setExpandedDetail] =
+    useState<SubscriptionDetailKey | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
   const [resetDone, setResetDone] = useState(false);
 
   const sourceLabel =
     container.dataSource === 'mock'
-      ? 'Ejemplos locales (sin backend)'
+      ? 'Datos de ejemplo (local)'
       : 'Servidor de análisis';
 
-  const handleResetData = async () => {
-    await container.resetLocalData();
-    setResetDone(true);
+  const limitsLabel = isPremium ? 'Ilimitados' : 'Hasta 3 al mes';
+
+  const modalityReason = isPremium
+    ? 'Sí está activa la modalidad Premium en este entorno de prueba, por lo que no se aplica el límite mensual del plan gratuito.'
+    : 'No está activo el plan Premium; la cuenta funciona actualmente bajo la modalidad gratuita de prueba.';
+
+  const limitsReason = isPremium
+    ? 'No hay restricción mensual: el plan gratuito incluye hasta 3 análisis mensuales, pero con Premium activo puedes realizar análisis ilimitados.'
+    : 'El plan gratuito incluye hasta 3 análisis mensuales para controlar el uso de prueba; al alcanzar el límite, se bloquean nuevas consultas gratuitas hasta el próximo ciclo o hasta activar Premium.';
+
+  const toggleDetail = (key: SubscriptionDetailKey) => {
+    setExpandedDetail((current) => (current === key ? null : key));
   };
 
   const handleTogglePremium = () => {
+    setConfirmReset(false);
     setResetDone(false);
     togglePremium();
   };
 
+  const handleConfirmReset = async () => {
+    await container.resetLocalData();
+    setConfirmReset(false);
+    setResetDone(true);
+  };
+
   return (
     <Screen>
-      {/* Cabecera con badge de plan */}
+      {/* Cabecera */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.title}>Perfil</Text>
           <View
             style={[
-              styles.planPill,
-              isPremium ? styles.planPillPro : styles.planPillFree,
+              styles.planBadge,
+              isPremium ? styles.planBadgePro : styles.planBadgeFree,
             ]}
           >
             <Text
               style={[
-                styles.planPillText,
-                isPremium ? styles.planPillTextPro : styles.planPillTextFree,
+                styles.planBadgeText,
+                isPremium ? styles.planBadgeTextPro : styles.planBadgeTextFree,
               ]}
             >
-              {isPremium ? 'PREMIUM ACTIVO' : 'PLAN GRATIS'}
+              {isPremium ? 'Premium' : 'Gratis'}
             </Text>
           </View>
         </View>
         <Text style={styles.subtitle}>
-          Gestiona tu modalidad de uso, datos locales y preferencias de la app.
+          Configuración de suscripción, datos locales y guía de uso.
         </Text>
       </View>
 
-      {/* Tarjeta de Plan */}
-      <Card style={styles.sectionCard}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.heading}>Plan actual</Text>
-          <Text style={styles.modeTag}>Modo prueba</Text>
-        </View>
+      {/* Suscripción: modalidad, límites y activar premium */}
+      <Card style={styles.card}>
+        <Text style={styles.heading}>Suscripción</Text>
 
-        <View style={styles.planHighlight}>
-          <Text style={styles.planHighlightTitle}>
-            {isPremium ? 'Análisis ilimitados' : '3 análisis gratis al mes'}
-          </Text>
-          <Text style={styles.body}>
-            {isPremium
-              ? 'Puedes revisar cuentas públicas sin límite mensual mientras esté activo.'
-              : 'Ideal para probar cuentas públicas; activa el modo de prueba si necesitas más.'}
-          </Text>
+        <View style={styles.listBox}>
+          <Pressable
+            onPress={() => toggleDetail('modality')}
+            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: expandedDetail === 'modality' }}
+          >
+            <Text style={styles.rowLabel}>Modalidad</Text>
+            <View style={styles.rowValueWrap}>
+              <Text style={styles.rowValue}>
+                {isPremium ? 'Premium' : 'Gratuita'}
+              </Text>
+              <Text style={styles.chevron}>
+                {expandedDetail === 'modality' ? '⌄' : '›'}
+              </Text>
+            </View>
+          </Pressable>
+
+          {expandedDetail === 'modality' && (
+            <View style={styles.reasonBox}>
+              <Text style={styles.reasonTitle}>
+                {isPremium ? 'Por qué sí' : 'Por qué no'}
+              </Text>
+              <Text style={styles.reasonText}>{modalityReason}</Text>
+            </View>
+          )}
+
+          <View style={styles.divider} />
+
+          <Pressable
+            onPress={() => toggleDetail('limits')}
+            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: expandedDetail === 'limits' }}
+          >
+            <Text style={styles.rowLabel}>Límites</Text>
+            <View style={styles.rowValueWrap}>
+              <Text
+                style={[
+                  styles.rowValue,
+                  isPremium && { color: theme.colors.primaryAccent },
+                ]}
+              >
+                {limitsLabel}
+              </Text>
+              <Text style={styles.chevron}>
+                {expandedDetail === 'limits' ? '⌄' : '›'}
+              </Text>
+            </View>
+          </Pressable>
+
+          {expandedDetail === 'limits' && (
+            <View style={styles.reasonBox}>
+              <Text style={styles.reasonTitle}>
+                {isPremium ? 'Sin límite activo' : 'Límite de 3 mensuales'}
+              </Text>
+              <Text style={styles.reasonText}>{limitsReason}</Text>
+            </View>
+          )}
         </View>
 
         <Button
           label={
             isPremium
-              ? 'Volver al plan gratis (prueba)'
-              : 'Probar plan premium (prueba)'
+              ? 'Desactivar premium (prueba)'
+              : 'Activar premium (prueba)'
           }
           variant="secondary"
           small
@@ -86,60 +154,87 @@ export function ProfileScreen({ navigation }: TabScreenProps<'Profile'>) {
         />
       </Card>
 
-      {/* Tarjeta de Datos y origen */}
-      <Card style={styles.sectionCard}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.heading}>Datos y origen</Text>
-          <Text style={styles.modeTag}>Prueba</Text>
-        </View>
+      {/* Datos y almacenamiento local */}
+      <Card style={styles.card}>
+        <Text style={styles.heading}>Datos y almacenamiento</Text>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Origen de perfiles</Text>
-          <Text style={styles.infoValue}>{sourceLabel}</Text>
+        <View style={styles.listBox}>
+          <View style={styles.rowStatic}>
+            <Text style={styles.rowLabel}>Fuente de perfiles</Text>
+            <Text style={styles.rowValue}>{sourceLabel}</Text>
+          </View>
         </View>
 
         <Text style={styles.body}>
-          Si necesitas empezar de cero, puedes borrar el historial guardado y el
-          contador mensual de este dispositivo.
+          Reiniciar borra el historial guardado y restablece el contador mensual
+          en este dispositivo.
         </Text>
 
         {resetDone && (
-          <View style={styles.feedbackBox}>
-            <Text style={styles.feedbackText}>
-              Historial y contador reiniciados correctamente.
-            </Text>
-          </View>
+          <Text style={styles.confirmNotice}>
+            Historial y contador reiniciados.
+          </Text>
         )}
 
-        <Button
-          label="Reiniciar historial y contador"
-          variant="secondary"
-          small
-          onPress={() => void handleResetData()}
-        />
+        {!confirmReset ? (
+          <Button
+            label="Reiniciar historial y contador"
+            variant="secondary"
+            small
+            onPress={() => {
+              setResetDone(false);
+              setConfirmReset(true);
+            }}
+          />
+        ) : (
+          <View style={styles.confirmBox}>
+            <Text style={styles.confirmText}>
+              ¿Confirmas eliminar el historial y reiniciar el contador mensual?
+            </Text>
+            <View style={styles.confirmButtons}>
+              <Pressable
+                onPress={() => setConfirmReset(false)}
+                style={({ pressed }) => [
+                  styles.btnCancel,
+                  pressed && styles.rowPressed,
+                ]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.btnCancelText}>Cancelar</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => void handleConfirmReset()}
+                style={({ pressed }) => [
+                  styles.btnConfirm,
+                  pressed && styles.rowPressed,
+                ]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.btnConfirmText}>Reiniciar</Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
       </Card>
 
-      {/* Tarjeta de Bienvenida */}
-      <Card style={styles.sectionCard}>
-        <Text style={styles.heading}>Bienvenida</Text>
+      {/* Guía de uso */}
+      <Card style={styles.card}>
+        <Text style={styles.heading}>Guía de uso</Text>
         <Text style={styles.body}>
-          Repasa cómo funciona Veritik y qué evalúa en cada cuenta.
+          Vuelve a revisar la introducción inicial de la aplicación.
         </Text>
         <Button
-          label="Ver la introducción otra vez"
+          label="Ver introducción"
           variant="secondary"
           small
           onPress={() => navigation.navigate('Onboarding')}
         />
       </Card>
 
-      {/* Aviso de transparencia */}
-      <Card style={styles.disclaimerCard}>
-        <Text style={styles.note}>
-          Veritik analiza solo señales públicas y entrega estimaciones, no
-          acusaciones.
-        </Text>
-      </Card>
+      <Text style={styles.footer}>
+        Veritik analiza solo señales públicas y entrega estimaciones, no
+        acusaciones.
+      </Text>
     </Screen>
   );
 }
@@ -164,106 +259,164 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  planPill: {
+  planBadge: {
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xxs,
     borderRadius: 999,
     borderWidth: 1,
   },
-  planPillFree: {
+  planBadgeFree: {
     backgroundColor: theme.colors.surfaceElevated,
     borderColor: theme.colors.border,
   },
-  planPillPro: {
-    backgroundColor: `${theme.colors.primaryAccent}18`,
+  planBadgePro: {
+    backgroundColor: `${theme.colors.primaryAccent}14`,
     borderColor: `${theme.colors.primaryAccent}45`,
   },
-  planPillText: {
+  planBadgeText: {
     ...theme.typography.label,
     fontFamily: theme.fontFamily.semibold,
   },
-  planPillTextFree: {
+  planBadgeTextFree: {
     color: theme.colors.textSecondary,
   },
-  planPillTextPro: {
+  planBadgeTextPro: {
     color: theme.colors.primaryAccent,
   },
 
-  sectionCard: {
-    gap: theme.spacing.xs,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  card: {
     gap: theme.spacing.xs,
   },
   heading: {
     ...theme.typography.h2,
     color: theme.colors.textPrimary,
   },
-  modeTag: {
-    ...theme.typography.caption,
-    color: theme.colors.textSecondary,
-    backgroundColor: theme.colors.surfaceElevated,
-    paddingHorizontal: theme.spacing.xs,
-    paddingVertical: 2,
-    borderRadius: theme.radius.md,
-  },
-
-  planHighlight: {
-    backgroundColor: theme.colors.surfaceElevated,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.sm,
-    gap: 2,
-  },
-  planHighlightTitle: {
-    ...theme.typography.body,
-    fontFamily: theme.fontFamily.semibold,
-    color: theme.colors.textPrimary,
-  },
-
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.spacing.xs,
-    backgroundColor: theme.colors.surfaceElevated,
-    borderRadius: theme.radius.md,
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.sm,
-  },
-  infoLabel: {
-    ...theme.typography.bodySmall,
-    color: theme.colors.textSecondary,
-  },
-  infoValue: {
-    ...theme.typography.bodySmall,
-    fontFamily: theme.fontFamily.semibold,
-    color: theme.colors.textPrimary,
-  },
-
-  feedbackBox: {
-    backgroundColor: `${theme.colors.primaryAccent}15`,
-    borderRadius: theme.radius.md,
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.sm,
-  },
-  feedbackText: {
-    ...theme.typography.bodySmall,
-    fontFamily: theme.fontFamily.semibold,
-    color: theme.colors.primaryAccent,
-  },
-
   body: {
     ...theme.typography.bodySmall,
     color: theme.colors.textSecondary,
     lineHeight: 20,
   },
-  disclaimerCard: {
+
+  listBox: {
+    backgroundColor: theme.colors.surfaceElevated,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    overflow: 'hidden',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: theme.sizes.minTouchTarget,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    gap: theme.spacing.xs,
+  },
+  rowStatic: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    gap: theme.spacing.xs,
+  },
+  rowPressed: {
+    opacity: 0.8,
+  },
+  rowLabel: {
+    ...theme.typography.bodySmall,
+    color: theme.colors.textSecondary,
+  },
+  rowValueWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  rowValue: {
+    ...theme.typography.bodySmall,
+    fontFamily: theme.fontFamily.semibold,
+    color: theme.colors.textPrimary,
+  },
+  chevron: {
+    fontSize: 16,
+    color: theme.colors.textSecondary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: theme.colors.border,
+  },
+
+  reasonBox: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    gap: 2,
+  },
+  reasonTitle: {
+    ...theme.typography.label,
+    fontFamily: theme.fontFamily.semibold,
+    color: theme.colors.primaryAccent,
+  },
+  reasonText: {
+    ...theme.typography.caption,
+    color: theme.colors.textSecondary,
+    lineHeight: 18,
+  },
+
+  confirmNotice: {
+    ...theme.typography.bodySmall,
+    fontFamily: theme.fontFamily.semibold,
+    color: theme.colors.primaryAccent,
+  },
+  confirmBox: {
+    backgroundColor: theme.colors.surfaceElevated,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.sm,
+    gap: theme.spacing.xs,
+  },
+  confirmText: {
+    ...theme.typography.bodySmall,
+    color: theme.colors.textPrimary,
+    lineHeight: 19,
+  },
+  confirmButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: theme.spacing.xs,
+  },
+  btnCancel: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
     backgroundColor: theme.colors.surface,
   },
-  note: {
+  btnCancelText: {
+    ...theme.typography.bodySmall,
+    fontFamily: theme.fontFamily.semibold,
+    color: theme.colors.textSecondary,
+  },
+  btnConfirm: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: `${theme.colors.risk}55`,
+    backgroundColor: `${theme.colors.risk}16`,
+  },
+  btnConfirmText: {
+    ...theme.typography.bodySmall,
+    fontFamily: theme.fontFamily.semibold,
+    color: theme.colors.risk,
+  },
+
+  footer: {
     ...theme.typography.caption,
     color: theme.colors.textSecondary,
     textAlign: 'center',
