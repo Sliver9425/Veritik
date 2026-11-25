@@ -174,7 +174,7 @@ Sigue estos pasos en orden. No necesitas cuentas ni claves.
 
 | Qué | Cómo comprobarlo |
 |---|---|
-| **Node.js** (versión LTS) | Abre una terminal y ejecuta `node -v`. Debe mostrar un número de versión. Si no, instálalo desde [nodejs.org](https://nodejs.org). |
+| **Node.js 22 o superior** | Abre una terminal y ejecuta `node -v`. Debe mostrar `v22` o un número mayor; con Node 20 ni Expo ni las pruebas arrancan. Si no, instala la versión LTS desde [nodejs.org](https://nodejs.org). |
 | **Git** | Ejecuta `git --version`. Si no, instálalo desde [git-scm.com](https://git-scm.com). |
 | **Expo Go** en tu celular | Descárgala gratis desde App Store (iPhone) o Google Play (Android). |
 | **Misma red Wi-Fi** | El celular y el computador deben estar conectados a la misma red. |
@@ -183,11 +183,11 @@ Sigue estos pasos en orden. No necesitas cuentas ni claves.
 ### 2️⃣ Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/veritik.git
-cd veritik
+git clone https://github.com/Sliver9425/Veritik.git
+cd Veritik/veritik
 ```
 
-> Reemplaza `TU_USUARIO/veritik` por la dirección real del repositorio.
+> El repositorio se clona en la carpeta `Veritik` y la app está dentro, en `veritik/`. Todos los comandos siguientes se ejecutan desde `Veritik/veritik`.
 
 ### 3️⃣ Instalar dependencias
 
@@ -211,7 +211,8 @@ Aparecerá un **código QR** en la terminal.
 
 - 📱 **Android:** abre Expo Go y toca *Scan QR code*.
 - 📱 **iPhone:** abre la cámara y apunta al código QR; te llevará a Expo Go.
-- 💻 También puedes presionar `w` en la terminal para verla en el navegador, o `a` / `i` si tienes un emulador de Android o iOS.
+- 💻 **Navegador:** presiona `w` en la terminal o inicia directamente con `npx expo start --web`. En pantallas grandes la app se muestra con el ancho de un teléfono, centrada, y en la vista móvil del navegador (Inspeccionar → modo dispositivo) se ve igual que en el celular.
+- 🤖 Presiona `a` / `i` si tienes un emulador de Android o iOS.
 
 La primera carga tarda un poco mientras se compila el código.
 
@@ -239,12 +240,18 @@ Las pruebas usan **Vitest** y **no necesitan celular, emulador ni internet**.
 npx vitest run
 ```
 
-Deben pasar las **63 pruebas**.
+Deben pasar las **63 pruebas**. También puedes comprobar los tipos de TypeScript, que deben terminar sin errores:
+
+```bash
+npm run typecheck
+```
 
 #### 🔧 Comandos útiles
 
 | Comando | Para qué sirve |
 |---|---|
+| `npm test` | Atajo de `npx vitest run`. |
+| `npm run typecheck` | Comprueba los tipos con `tsc --noEmit` (debe terminar sin errores). |
 | `npx vitest run` | Ejecuta todas las pruebas una vez. |
 | `npx vitest` | Modo observador: vuelve a ejecutar las pruebas cada vez que guardas un archivo. |
 | `npx vitest run --reporter=verbose` | Muestra el nombre de cada prueba y si pasó. |
