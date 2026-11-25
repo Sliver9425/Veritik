@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import type { HistoryItem } from '../../application';
-import type { RiskLevel } from '../../domain';
+import type { ScoreLevel } from '../../domain';
 import { Card } from '../components/atoms/Card';
 import { Screen } from '../components/atoms/Screen';
 import { container } from '../composition';
@@ -17,9 +17,9 @@ import { LEVEL_SHORT } from '../content/labels';
 import type { TabScreenProps } from '../navigation/types';
 import { levelColors, theme } from '../theme';
 
-type LevelFilter = 'ALL' | RiskLevel;
+type LevelFilter = 'ALL' | ScoreLevel;
 
-const LEVEL_KEYS = Object.keys(LEVEL_SHORT) as RiskLevel[];
+const LEVEL_KEYS = Object.keys(LEVEL_SHORT) as ScoreLevel[];
 
 function getInitials(handle: string): string {
   const clean = handle.replace(/^@+/, '').trim();
@@ -255,10 +255,7 @@ export function HistoryScreen({ navigation }: TabScreenProps<'History'>) {
         <View style={styles.list}>
           {filteredItems.map((item) => {
             const palette = levelColors[item.level];
-            const badgeBg =
-              'background' in palette && palette.background
-                ? palette.background
-                : `${palette.foreground}16`;
+            const badgeBg = palette.background;
 
             return (
               <Pressable
